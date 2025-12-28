@@ -5,9 +5,12 @@
 
 # Wait for Kafka Connect to be ready
 echo "Waiting for Kafka Connect to be ready..."
-until curl -s http://localhost:8083/connectors > /dev/null 2>&1; do
+until [ "$(curl -s -o /dev/null -w '%{http_code}' http://localhost:8083/connectors)" = "200" ]; do
     sleep 2
 done
+
+# Add small delay to ensure REST API is fully ready
+sleep 3
 
 echo "Kafka Connect is ready. Registering connector..."
 
@@ -26,7 +29,7 @@ curl -X POST http://localhost:8083/connectors \
       "topic.prefix": "postgres-connector",
       "table.include.list": "public.messages",
       "plugin.name": "pgoutput",
-      "publication.autocreate.mode": "filtered",
+      "publication.autocreate.mode": "all_tables",
       "slot.name": "debezium_slot",
       "schema.history.internal.kafka.bootstrap.servers": "kafka:29092",
       "schema.history.internal.kafka.topic": "schema-changes.mydb"

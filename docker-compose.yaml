@@ -9,6 +9,7 @@ services:
       - "5432:5432"
     volumes:
       - postgres_data:/var/lib/postgresql
+      - ./scripts/init.sql:/docker-entrypoint-initdb.d/init.sql:ro
     command: ["postgres", "-c", "wal_level=logical"]
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U postgres"]
@@ -37,10 +38,15 @@ services:
       KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
       KAFKA_TRANSACTION_STATE_LOG_REPLICATION_FACTOR: 1
       KAFKA_TRANSACTION_STATE_LOG_MIN_ISR: 1
+      KAFKA_LOG_RETENTION_BYTES: 1073741824 # 1GB / Partition
+      KAFKA_LOG_RETENTION_MS: 86400000 # 1 day
       KAFKA_LOG_DIRS: /tmp/kraft-combined-logs
       CLUSTER_ID: MkU3OEVBNTcwNTJENDM2Qk
     volumes:
       - kafka_data:/var/lib/kafka/data
+      - ./scripts/kafka-entrypoint.sh:/kafka-entrypoint.sh:ro
+      - ./scripts/topics.txt:/topics.txt:ro
+    entrypoint: ["/bin/bash", "/kafka-entrypoint.sh"]
     healthcheck:
       test: ["CMD-SHELL", "/opt/kafka/bin/kafka-broker-api-versions.sh --bootstrap-server localhost:9092"]
       interval: 10s

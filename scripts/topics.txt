@@ -1,0 +1,6 @@
+# Format: topic_name|partitions|replication_factor|cleanup_policy
+# ถ้าไม่ใส่ partitions/replication จะใช้ default (1)
+postgres-connector.public.messages|3|1|delete
+connect_configs|1|1|compact
+connect_offsets|1|1|compact
+connect_statuses|1|1|compact

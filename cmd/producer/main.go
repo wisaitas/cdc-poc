@@ -104,10 +104,6 @@ func New() *App {
 		log.Fatalf("error connecting to database: %v", err)
 	}
 
-	if err := db.AutoMigrate(&Message{}); err != nil {
-		log.Fatalf("error migrating database: %v", err)
-	}
-
 	return &App{
 		App: fiber.New(),
 		DB:  db,
